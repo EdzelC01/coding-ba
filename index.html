@@ -35,7 +35,7 @@
     <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-xl p-6 mt-6">
         <h2 class="text-xl font-bold text-center mb-4">Enter the last digit of your plate number</h2>
 
-        <input type="number" id="plateDigit" maxlength="1"
+        <input type="number" id="plateDigit" maxlength="1" inputmode="numeric"
             class="w-full p-3 rounded-lg text-black bg-white/80 placeholder-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-blue-400 mb-1"
             placeholder="e.g. 5" />
 
@@ -47,44 +47,47 @@
         </button>
 
         <div id="result" class="mt-6 grid grid-cols-2 gap-4 hidden">
-            <div id="edsaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md"></div>
-            <div id="mmdaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md"></div>
+            <div>
+                <div class="text-sm text-center mb-1 text-gray-300">EDSA</div>
+                <div id="edsaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md">
+                </div>
+            </div>
+            <div>
+                <div class="text-sm text-center mb-1 text-gray-300">Expanded Coding Scheme</div>
+                <div id="mmdaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md">
+                </div>
+            </div>
         </div>
         <p id="mmdaTimeInfo" class="text-sm text-yellow-300 mt-4 hidden"></p>
     </div>
-    
 
     <div class="w-full max-w-md mt-10 text-white">
         <h2 class="text-2xl font-bold mb-4">FAQ</h2>
         <div class="space-y-3">
             <details class="border-b border-gray-600 pb-2">
                 <summary class="font-semibold cursor-pointer">What is the Expanded Number Coding Scheme?</summary>
-                <p class="mt-1 text-sm text-gray-300">The Expanded Number Coding Scheme is a traffic management system that
-                    restricts vehicles based on the last digit of their license plate to reduce congestion.</p>
+                <p class="mt-1 text-sm text-gray-300">The Expanded Number Coding Scheme is a traffic management system
+                    that restricts vehicles based on the last digit of their license plate to reduce congestion.</p>
             </details>
-    
             <details class="border-b border-gray-600 pb-2">
-                <summary class="font-semibold cursor-pointer">When does the Expanded Number Coding Scheme apply?</summary>
+                <summary class="font-semibold cursor-pointer">When does the Expanded Number Coding Scheme apply?
+                </summary>
                 <p class="mt-1 text-sm text-gray-300">Coding hours are from 7:00-10:00 AM and 5:00-8:00 PM on weekdays,
                     excluding holidays and Sundays.</p>
             </details>
-    
             <details class="border-b border-gray-600 pb-2">
                 <summary class="font-semibold cursor-pointer">Are there exemptions?</summary>
-                <p class="mt-1 text-sm text-gray-300">Public utility vehicles (including trycicles), Transport network vehicle services, Motorcycles, Garbage trucks, Fuel trucks, Marked government vehicles, Fire trucks, Ambulances, Marked media vehicles, Motor vehicles carrying essential and/or perishable goods
-                   are exempted from the Expanded Number Coding Scheme.</p>
+                <p class="mt-1 text-sm text-gray-300">Public utility vehicles, TNVS, motorcycles, emergency and
+                    government vehicles, and those carrying essential goods are exempted from the scheme.</p>
             </details>
-    
             <details class="border-b border-gray-600 pb-2">
                 <summary class="font-semibold cursor-pointer">How do I know if my vehicle is affected?</summary>
                 <p class="mt-1 text-sm text-gray-300">Enter your plate’s last digit in the checker above to see if your
                     vehicle is restricted today.</p>
             </details>
-    
             <details class="pb-2">
                 <summary class="font-semibold cursor-pointer">What if today is a holiday?</summary>
-                <p class="mt-1 text-sm text-gray-300">The coding scheme is not enforced on holidays and Sundays, so you’re
-                    allowed on all roads.</p>
+                <p class="mt-1 text-sm text-gray-300">The coding scheme is not enforced on holidays and Sundays.</p>
             </details>
         </div>
     </div>
@@ -120,22 +123,21 @@
             let edsaText = "";
             let edsaColor = "";
             let mmdaText = "";
-            let mmdaColor = "";
 
             if (day === 0 || isHoliday) {
-                edsaText = "Your car is allowed in EDSA";
+                edsaText = "Allowed (Holiday/Sunday)";
                 edsaColor = "bg-green-500 text-white";
-                mmdaText = "You are not affected by the Expanded Number Coding Scheme.";
-                mmdaColor = "bg-green-500 text-white";
+                mmdaText = "Not affected today";
+                mmdaBox.className = "rounded-2xl p-6 text-center font-bold text-lg bg-green-500 text-white";
             } else {
                 const bannedOdd = [1, 3, 5, 7, 9];
                 const bannedEven = [0, 2, 4, 6, 8];
                 if (([1, 3, 5].includes(day) && bannedOdd.includes(Number(digit))) ||
                     ([2, 4, 6].includes(day) && bannedEven.includes(Number(digit)))) {
-                    edsaText = "Your car is NOT allowed in EDSA";
+                    edsaText = "Not allowed on EDSA";
                     edsaColor = "bg-red-500 text-white";
                 } else {
-                    edsaText = "Your car is allowed in EDSA";
+                    edsaText = "Allowed on EDSA";
                     edsaColor = "bg-green-500 text-white";
                 }
 
@@ -148,55 +150,47 @@
                 };
 
                 if (mmdaBanMap[day] && mmdaBanMap[day].includes(digit)) {
-                    mmdaText = "Your car is affected by the Expanded Number Coding Scheme today.";
-                    mmdaColor = "bg-red-500 text-white";
-
-                    // Time-based message for MMDA coding hours
                     const hour = today.getHours();
                     const minutes = today.getMinutes();
                     const time = hour + minutes / 60;
                     const inMorning = time >= 7 && time <= 10;
                     const inEvening = time >= 17 && time <= 20;
 
+                    mmdaText = "Affected by coding today";
+
                     if (inMorning || inEvening) {
+                        mmdaBox.className = "rounded-2xl p-6 text-center font-bold text-lg bg-red-500 text-white";
                         mmdaTimeInfo.textContent = "⚠️ You are currently within Expanded Number Coding Scheme hours.";
                     } else {
-                        mmdaTimeInfo.textContent = "✅ You are currently outside Expanded Number Coding Scheme hours.";
-                        // Change box color to gold/yellow
-                        mmdaBox.className = `rounded-2xl p-6 text-center font-bold text-lg bg-yellow-500 text-black`;
+                        mmdaBox.className = "rounded-2xl p-6 text-center font-bold text-lg bg-yellow-400 text-black";
+                        mmdaTimeInfo.textContent = "⚠️ Affected by coding today, but you're currently outside coding hours.";
                     }
-
                     mmdaTimeInfo.classList.remove("hidden");
 
                 } else {
-                    mmdaText = "You are not affected by the Expanded Number Coding Scheme today.";
-                    mmdaColor = "bg-green-500 text-white";
+                    mmdaText = "Not affected today";
+                    mmdaBox.className = "rounded-2xl p-6 text-center font-bold text-lg bg-green-500 text-white";
                 }
             }
 
             edsaBox.textContent = edsaText;
-            mmdaBox.textContent = mmdaText;
             edsaBox.className = `rounded-2xl p-6 text-center font-bold text-lg ${edsaColor}`;
-            mmdaBox.className = `rounded-2xl p-6 text-center font-bold text-lg ${mmdaColor}`;
+            mmdaBox.textContent = mmdaText;
 
             result.classList.remove("hidden");
         }
 
         const input = document.getElementById("plateDigit");
-
-            // Limit input to 1 digit max
-            input.addEventListener("input", () => {
-                if (input.value.length > 1) {
-                    input.value = input.value.slice(0, 1);
-                }
-            });
-
-            // Trigger check on Enter key
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    checkCoding();
-                }
-            });
+        input.addEventListener("input", () => {
+            if (input.value.length > 1) {
+                input.value = input.value.slice(0, 1);
+            }
+        });
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                checkCoding();
+            }
+        });
     </script>
 </body>
 
