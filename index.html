@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MMDA Coding Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        .fun-heading {
+            font-family: 'Fredoka One', cursive;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#1e1e1e] min-h-screen flex flex-col items-center justify-start p-4 text-white">
+    <div class="mt-10">
+        <h1 class="text-5xl fun-heading text-yellow-400 drop-shadow-lg">Coding ba?</h1>
+    </div>
+
+    <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-xl p-6 mt-6">
+        <h2 class="text-xl font-bold text-center mb-4">Enter the last digit of your plate number</h2>
+
+        <input type="number" id="plateDigit" maxlength="1"
+            class="w-full p-3 rounded-lg text-black bg-white/80 placeholder-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-blue-400 mb-1"
+            placeholder="e.g. 5" />
+
+        <p id="errorText" class="text-red-500 text-sm mb-4 hidden">Please enter a valid digit from 0 to 9.</p>
+
+        <button onclick="checkCoding()"
+            class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">
+            Check
+        </button>
+
+        <div id="result" class="mt-6 grid grid-cols-2 gap-4 hidden">
+            <div id="edsaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md"></div>
+            <div id="mmdaBox" class="rounded-2xl p-6 text-center font-bold text-lg bg-white/10 backdrop-blur-md"></div>
+        </div>
+    </div>
+
+    <script>
+        const holidays = [
+            "2025-01-01", "2025-04-17", "2025-04-18", "2025-05-01",
+            "2025-06-12", "2025-08-26", "2025-11-30", "2025-12-25", "2025-12-30"
+        ];
+
+        function checkCoding() {
+            const digit = document.getElementById("plateDigit").value.trim();
+            const result = document.getElementById("result");
+            const edsaBox = document.getElementById("edsaBox");
+            const mmdaBox = document.getElementById("mmdaBox");
+            const errorText = document.getElementById("errorText");
+
+            result.classList.add("hidden");
+            errorText.classList.add("hidden");
+
+            if (!/^[0-9]$/.test(digit)) {
+                errorText.classList.remove("hidden");
+                return;
+            }
+
+            const today = new Date();
+            const day = today.getDay();
+            const formattedDate = today.toISOString().split('T')[0];
+            const isHoliday = holidays.includes(formattedDate);
+
+            let edsaText = "";
+            let edsaColor = "";
+            let mmdaText = "";
+            let mmdaColor = "";
+
+            if (day === 0 || isHoliday) {
+                edsaText = "Your car is allowed in EDSA";
+                edsaColor = "bg-green-500 text-white";
+                mmdaText = "You are not affected by MMDA number coding today.";
+                mmdaColor = "bg-green-500 text-white";
+            } else {
+                const bannedOdd = [1, 3, 5, 7, 9];
+                const bannedEven = [0, 2, 4, 6, 8];
+                if (([1, 3, 5].includes(day) && bannedOdd.includes(Number(digit))) ||
+                    ([2, 4, 6].includes(day) && bannedEven.includes(Number(digit)))) {
+                    edsaText = "Your car is NOT allowed in EDSA";
+                    edsaColor = "bg-red-500 text-white";
+                } else {
+                    edsaText = "Your car is allowed in EDSA";
+                    edsaColor = "bg-green-500 text-white";
+                }
+
+                const mmdaBanMap = {
+                    1: ["1", "2"],
+                    2: ["3", "4"],
+                    3: ["5", "6"],
+                    4: ["7", "8"],
+                    5: ["9", "0"]
+                };
+
+                if (mmdaBanMap[day] && mmdaBanMap[day].includes(digit)) {
+                    mmdaText = "Your car is affected by MMDA number coding today.";
+                    mmdaColor = "bg-red-500 text-white";
+                } else {
+                    mmdaText = "You are not affected by MMDA number coding today.";
+                    mmdaColor = "bg-green-500 text-white";
+                }
+            }
+
+            edsaBox.textContent = edsaText;
+            mmdaBox.textContent = mmdaText;
+            edsaBox.className = `rounded-2xl p-6 text-center font-bold text-lg ${edsaColor}`;
+            mmdaBox.className = `rounded-2xl p-6 text-center font-bold text-lg ${mmdaColor}`;
+
+            result.classList.remove("hidden");
+        }
+    </script>
+</body>
+
+</html>
